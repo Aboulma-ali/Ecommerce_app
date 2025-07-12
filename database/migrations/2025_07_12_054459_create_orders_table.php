@@ -4,24 +4,25 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
+class CreateOrdersTable extends Migration
 {
-    /**
-     * Run the migrations.
-     */
-    public function up(): void
+    public function up()
     {
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->foreignId('shipping_address_id')->nullable()->constrained('addresses')->onDelete('set null');
+            $table->decimal('total', 10, 2);
+            $table->enum('status', ['en_attente', 'expédiée', 'livrée', 'annulée'])->default('en_attente');
+            $table->enum('payment_status', ['non_payé', 'payé'])->default('non_payé');
+            $table->enum('payment_method', ['en_ligne', 'à_la_livraison']);
+            $table->timestamp('ordered_at')->useCurrent();
             $table->timestamps();
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
-    public function down(): void
+    public function down()
     {
         Schema::dropIfExists('orders');
     }
-};
+}
