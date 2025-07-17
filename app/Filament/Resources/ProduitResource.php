@@ -98,7 +98,7 @@ class ProduitResource extends Resource
                     ->columns(2),
 
                 Forms\Components\Section::make('Média')
-                    ->description('Ajoutez une image pour votre produit')
+                    ->description('Ajoutez des images pour votre produit')
                     ->schema([
                         Forms\Components\FileUpload::make('image')
                             ->label('Image principale')
@@ -111,6 +111,39 @@ class ProduitResource extends Resource
                                 '4:3',
                                 '1:1',
                             ])
+                            ->helperText('Cette image sera utilisée comme image principale du produit')
+                            ->columnSpanFull(),
+
+                        Forms\Components\Repeater::make('images')
+                            ->label('Images supplémentaires')
+                            ->relationship('images')
+                            ->schema([
+                                Forms\Components\FileUpload::make('image_path')
+                                    ->label('Image')
+                                    ->image()
+                                    ->directory('produits/gallery')
+                                    ->maxSize(2048)
+                                    ->imageEditor()
+                                    ->imageEditorAspectRatios([
+                                        '16:9',
+                                        '4:3',
+                                        '1:1',
+                                    ])
+                                    ->required()
+                                    ->columnSpan(2),
+
+                                Forms\Components\TextInput::make('alt')
+                                    ->label('Texte alternatif')
+                                    ->placeholder('Description de l\'image')
+                                    ->maxLength(255)
+                                    ->columnSpan(1),
+                            ])
+                            ->columns(3)
+                            ->addActionLabel('Ajouter une image')
+                            ->collapsible()
+                            ->collapsed()
+                            ->itemLabel(fn (array $state): ?string => $state['alt'] ?? 'Image sans description')
+                            ->maxItems(10)
                             ->columnSpanFull(),
                     ])
                     ->collapsible()
