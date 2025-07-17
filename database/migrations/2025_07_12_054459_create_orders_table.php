@@ -12,7 +12,7 @@ class CreateOrdersTable extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->foreignId('shipping_address_id')->nullable()->constrained('addresses')->onDelete('set null');
-            $table->decimal('total', 10, 2);
+            $table->decimal('total', 10, 2)->nullable();;
             $table->enum('status', ['en_attente', 'expédiée', 'livrée', 'annulée'])->default('en_attente');
             $table->enum('payment_status', ['non_payé', 'payé'])->default('non_payé');
             $table->enum('payment_method', ['en_ligne', 'à_la_livraison']);
