@@ -352,6 +352,13 @@ class ProduitResource extends Resource
 
     public static function getNavigationBadgeColor(): ?string
     {
-        return static::getModel()::count() > 100 ? 'warning' : 'primary';
+        $count = static::getModel()::count();
+
+        return match (true) {
+            $count === 0 => 'gray',      // Gris si aucune catégorie
+            $count < 5 => 'danger',      // Rouge si moins de 5
+            $count < 20 => 'warning',    // Orange si moins de 20
+            default => 'success'         // Vert si 20 ou plus
+        };
     }
 }
