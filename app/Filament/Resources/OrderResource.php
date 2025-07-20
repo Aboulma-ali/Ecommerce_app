@@ -397,6 +397,12 @@ class OrderResource extends Resource
             ->actions([
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
+                Action::make('download_invoice')
+                    ->label('Télécharger la facture')
+                    ->icon('heroicon-m-document-arrow-down')
+                    ->color('primary')
+                    ->url(fn (Order $record) => route('orders.invoice', $record->id))
+                    ->openUrlInNewTab(),
                 Action::make('mark_as_paid')
                     ->label('Marquer comme payé')
                     ->icon('heroicon-m-check-circle')

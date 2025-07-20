@@ -19,6 +19,22 @@ class Order extends Model
         'ordered_at',
     ];
 
+    protected $casts = [
+        'ordered_at' => 'datetime',
+        'total' => 'decimal:2',
+    ];
+
+    // Méthode pour calculer et sauvegarder le total
+    public function calculateTotal()
+    {
+        $total = $this->orderItems()->sum('total');
+
+        // Utilisation de updateQuietly pour éviter de déclencher les events
+        $this->updateQuietly(['total' => $total]);
+
+        return $total;
+    }
+
     // Relations
     public function user()
     {
@@ -38,10 +54,5 @@ class Order extends Model
     public function payments()
     {
         return $this->hasMany(Payment::class);
-    }
-
-    public function invoice()
-    {
-        return $this->hasOne(Invoice::class);
     }
 }
