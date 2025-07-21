@@ -33,6 +33,8 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\OrderResource\Pages;
 use App\Filament\Resources\OrderResource\RelationManagers;
+use Filament\Forms\Get;
+use Filament\Forms\Set;
 
 class OrderResource extends Resource
 {
@@ -176,13 +178,13 @@ class OrderResource extends Resource
                                             ->searchable()
                                             ->preload()
                                             ->required()
-                                            ->reactive()
-                                            ->afterStateUpdated(function ($state, callable $set) {
+                                            ->live()
+                                            ->afterStateUpdated(function ($state, Set $set) {
                                                 if ($state) {
                                                     $product = Product::find($state);
                                                     if ($product) {
                                                         $set('price', $product->price);
-                                                        $set('total', $product->price * 1);
+                                                        $set('total', $product->price);
                                                     }
                                                 }
                                             })
@@ -194,12 +196,11 @@ class OrderResource extends Resource
                                             ->default(1)
                                             ->minValue(1)
                                             ->required()
-                                            ->reactive()
-                                            ->afterStateUpdated(function ($state, callable $get, callable $set) {
-                                                $price = $get('price');
-                                                if ($price && $state) {
-                                                    $set('total', $price * $state);
-                                                }
+                                            ->live(onBlur: true)
+                                            ->afterStateUpdated(function ($state, Get $get, Set $set) {
+                                                $price = $get('price') ?? 0;
+                                                $quantity = $state ?? 1;
+                                                $set('total', $price * $quantity);
                                             })
                                             ->columnSpan(1),
 
@@ -208,12 +209,11 @@ class OrderResource extends Resource
                                             ->numeric()
                                             ->prefix('€')
                                             ->required()
-                                            ->reactive()
-                                            ->afterStateUpdated(function ($state, callable $get, callable $set) {
-                                                $quantity = $get('quantity');
-                                                if ($quantity && $state) {
-                                                    $set('total', $state * $quantity);
-                                                }
+                                            ->live(onBlur: true)
+                                            ->afterStateUpdated(function ($state, Get $get, Set $set) {
+                                                $quantity = $get('quantity') ?? 1;
+                                                $price = $state ?? 0;
+                                                $set('total', $price * $quantity);
                                             })
                                             ->columnSpan(1),
 
@@ -222,7 +222,7 @@ class OrderResource extends Resource
                                             ->numeric()
                                             ->prefix('€')
                                             ->required()
-                                            ->disabled()
+                                            ->readOnly()
                                             ->columnSpan(1),
                                     ])
                             ])
@@ -232,14 +232,22 @@ class OrderResource extends Resource
                             ->collapsible()
                             ->itemLabel(fn (array $state): ?string => $state['product_id'] ? Product::find($state['product_id'])?->name : 'Nouveau produit')
                             ->defaultItems(1)
-                            ->minItems(1),
+                            ->minItems(1)
+                            ->live(),
 
                         Placeholder::make('total_calculation')
                             ->label('Total de la commande')
-                            ->content(function ($get) {
+                            ->content(function (Get $get) {
                                 $items = $get('orderItems') ?? [];
-                                $total = collect($items)->sum('total');
-                                return '€' . number_format($total, 2);
+                                $total = 0;
+
+                                foreach ($items as $item) {
+                                    if (isset($item['total']) && is_numeric($item['total'])) {
+                                        $total += floatval($item['total']);
+                                    }
+                                }
+
+                                return '€ ' . number_format($total, 2, ',', ' ');
                             })
                             ->extraAttributes(['class' => 'text-lg font-bold text-primary-600']),
                     ])
@@ -252,10 +260,6 @@ class OrderResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('id')
-                    ->label('ID')
-                    ->sortable()
-                    ->searchable(),
 
                 TextColumn::make('user.name')
                     ->label('Client')
@@ -314,12 +318,6 @@ class OrderResource extends Resource
                         'en_ligne' => 'info',
                         'à_la_livraison' => 'warning',
                     }),
-
-                TextColumn::make('orderItems_count')
-                    ->label('Articles')
-                    ->counts('orderItems')
-                    ->badge()
-                    ->color('gray'),
 
                 TextColumn::make('ordered_at')
                     ->label('Date')
@@ -395,32 +393,66 @@ class OrderResource extends Resource
                     }),
             ], layout: FiltersLayout::AboveContentCollapsible)
             ->actions([
+                // Actions principales toujours visibles
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
-                Action::make('download_invoice')
-                    ->label('Télécharger la facture')
-                    ->icon('heroicon-m-document-arrow-down')
-                    ->color('primary')
-                    ->url(fn (Order $record) => route('orders.invoice', $record->id))
-                    ->openUrlInNewTab(),
-                Action::make('mark_as_paid')
-                    ->label('Marquer comme payé')
-                    ->icon('heroicon-m-check-circle')
-                    ->color('success')
-                    ->visible(fn (Order $record): bool => $record->payment_status === 'non_payé')
-                    ->action(function (Order $record) {
-                        $record->update(['payment_status' => 'payé']);
-                    })
-                    ->requiresConfirmation(),
-                Action::make('mark_as_shipped')
-                    ->label('Marquer comme expédiée')
-                    ->icon('heroicon-m-truck')
-                    ->color('info')
-                    ->visible(fn (Order $record): bool => $record->status === 'en_attente')
-                    ->action(function (Order $record) {
-                        $record->update(['status' => 'expédiée']);
-                    })
-                    ->requiresConfirmation(),
+
+                // Groupe d'actions secondaires
+                Tables\Actions\ActionGroup::make([
+                    Action::make('download_invoice')
+                        ->label('Télécharger la facture')
+                        ->icon('heroicon-m-document-arrow-down')
+                        ->color('primary')
+                        ->url(fn (Order $record) => route('orders.invoice', $record->id))
+                        ->openUrlInNewTab(),
+
+                    Action::make('mark_as_paid')
+                        ->label('Marquer comme payé')
+                        ->icon('heroicon-m-check-circle')
+                        ->color('success')
+                        ->visible(fn (Order $record): bool => $record->payment_status === 'non_payé')
+                        ->action(function (Order $record) {
+                            $record->update(['payment_status' => 'payé']);
+                        })
+                        ->requiresConfirmation(),
+
+                    Action::make('mark_as_shipped')
+                        ->label('Marquer comme expédiée')
+                        ->icon('heroicon-m-truck')
+                        ->color('info')
+                        ->visible(fn (Order $record): bool => $record->status === 'en_attente')
+                        ->action(function (Order $record) {
+                            $record->update(['status' => 'expédiée']);
+                        })
+                        ->requiresConfirmation(),
+
+                    Action::make('mark_as_delivered')
+                        ->label('Marquer comme livrée')
+                        ->icon('heroicon-m-check-badge')
+                        ->color('success')
+                        ->visible(fn (Order $record): bool => $record->status === 'expédiée')
+                        ->action(function (Order $record) {
+                            $record->update(['status' => 'livrée']);
+                        })
+                        ->requiresConfirmation(),
+
+                    Action::make('cancel_order')
+                        ->label('Annuler la commande')
+                        ->icon('heroicon-m-x-circle')
+                        ->color('danger')
+                        ->visible(fn (Order $record): bool => !in_array($record->status, ['livrée', 'annulée']))
+                        ->action(function (Order $record) {
+                            $record->update(['status' => 'annulée']);
+                        })
+                        ->requiresConfirmation()
+                        ->modalHeading('Annuler la commande')
+                        ->modalDescription('Êtes-vous sûr de vouloir annuler cette commande ?')
+                        ->modalSubmitActionLabel('Oui, annuler'),
+                ])
+                    ->label('Actions')
+                    ->icon('heroicon-m-ellipsis-vertical')
+                    ->color('gray')
+                    ->size('sm'),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
