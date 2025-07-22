@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Events\OrderEvent;
 use App\Models\Order;
 use App\Models\Product;
 use App\Models\Address;
@@ -511,6 +512,7 @@ class OrderResource extends Resource
                         ->url(fn (Order $record) => route('orders.invoice', $record->id))
                         ->openUrlInNewTab(),
 
+
                     Action::make('mark_as_paid')
                         ->label('Marquer comme payé')
                         ->icon('heroicon-m-check-circle')
@@ -705,4 +707,5 @@ class OrderResource extends Resource
             'edit' => Pages\EditOrder::route('/{record}/edit'),
         ];
     }
+
 }
