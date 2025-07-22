@@ -35,6 +35,7 @@ use App\Filament\Resources\OrderResource\Pages;
 use App\Filament\Resources\OrderResource\RelationManagers;
 use Filament\Forms\Get;
 use Filament\Forms\Set;
+use Filament\Notifications\Notification;
 
 class OrderResource extends Resource
 {
@@ -170,20 +171,44 @@ class OrderResource extends Resource
                         Repeater::make('orderItems')
                             ->relationship()
                             ->schema([
-                                Grid::make(4)
+                                Grid::make(5)
                                     ->schema([
                                         Select::make('product_id')
                                             ->label('Produit')
-                                            ->relationship('product', 'name')
+                                            ->relationship(
+                                                name: 'product',
+                                                titleAttribute: 'name',
+                                                modifyQueryUsing: fn (Builder $query) => $query->where('stock', '>', 0)
+                                            )
                                             ->searchable()
                                             ->preload()
                                             ->required()
                                             ->live()
-                                            ->afterStateUpdated(function ($state, Set $set) {
+                                            ->getOptionLabelFromRecordUsing(function (Product $record) {
+                                                $stockInfo = $record->stock > 0
+                                                    ? " (Stock: {$record->stock})"
+                                                    : " (ÉPUISÉ)";
+                                                return $record->name . $stockInfo;
+                                            })
+                                            ->afterStateUpdated(function ($state, Set $set, Get $get) {
                                                 if ($state) {
                                                     $product = Product::find($state);
                                                     if ($product) {
+                                                        if ($product->stock <= 0) {
+                                                            Notification::make()
+                                                                ->title('Stock épuisé')
+                                                                ->body("Désolé cher(e) client, le stock de ce produit '{$product->name}' est épuisé.")
+                                                                ->danger()
+                                                                ->persistent()
+                                                                ->send();
+
+                                                            $set('product_id', null);
+                                                            return;
+                                                        }
+
                                                         $set('price', $product->price);
+                                                        $set('available_stock', $product->stock);
+                                                        $set('quantity', 1);
                                                         $set('total', $product->price);
                                                     }
                                                 }
@@ -198,16 +223,48 @@ class OrderResource extends Resource
                                             ->required()
                                             ->live(onBlur: true)
                                             ->afterStateUpdated(function ($state, Get $get, Set $set) {
-                                                $price = $get('price') ?? 0;
-                                                $quantity = $state ?? 1;
-                                                $set('total', $price * $quantity);
+                                                $productId = $get('product_id');
+                                                $requestedQuantity = intval($state);
+
+                                                if ($productId && $requestedQuantity > 0) {
+                                                    $product = Product::find($productId);
+                                                    if ($product) {
+                                                        if ($requestedQuantity > $product->stock) {
+                                                            Notification::make()
+                                                                ->title('Stock insuffisant')
+                                                                ->body("Stock disponible pour '{$product->name}': {$product->stock} unités seulement.")
+                                                                ->warning()
+                                                                ->send();
+
+                                                            $set('quantity', $product->stock);
+                                                            $requestedQuantity = $product->stock;
+                                                        }
+
+                                                        $price = $get('price') ?? 0;
+                                                        $set('total', $price * $requestedQuantity);
+                                                    }
+                                                }
                                             })
+                                            // Add custom validation rule for stock checking
+                                            ->rules([
+                                                function (Get $get) {
+                                                    return function (string $attribute, $value, \Closure $fail) use ($get) {
+                                                        $productId = $get('product_id');
+                                                        if ($productId && $value) {
+                                                            $product = Product::find($productId);
+                                                            if ($product && intval($value) > $product->stock) {
+                                                                $fail("Stock insuffisant pour le produit '{$product->name}'. Stock disponible: {$product->stock}");
+                                                            }
+                                                        }
+                                                    };
+                                                }
+                                            ])
                                             ->columnSpan(1),
 
                                         TextInput::make('price')
-                                            ->label('Prix unitaire')
+                                            ->label('Prix unitaire (XOF)')
                                             ->numeric()
-                                            ->prefix('€')
+                                            ->prefix('XOF')
                                             ->required()
                                             ->live(onBlur: true)
                                             ->afterStateUpdated(function ($state, Get $get, Set $set) {
@@ -218,22 +275,28 @@ class OrderResource extends Resource
                                             ->columnSpan(1),
 
                                         TextInput::make('total')
-                                            ->label('Total')
+                                            ->label('Total (XOF)')
                                             ->numeric()
-                                            ->prefix('€')
+                                            ->prefix('XOF')
                                             ->required()
                                             ->readOnly()
                                             ->columnSpan(1),
+
+                                        // Champ caché pour stocker le stock disponible
+                                        Forms\Components\Hidden::make('available_stock'),
                                     ])
                             ])
                             ->columns(1)
                             ->addActionLabel('Ajouter un produit')
                             ->reorderable()
                             ->collapsible()
-                            ->itemLabel(fn (array $state): ?string => $state['product_id'] ? Product::find($state['product_id'])?->name : 'Nouveau produit')
+                            ->itemLabel(fn (array $state): ?string =>
+                            $state['product_id'] ? Product::find($state['product_id'])?->name : 'Nouveau produit'
+                            )
                             ->defaultItems(1)
                             ->minItems(1)
                             ->live(),
+                        // Remove the invalid ->beforeSave() method
 
                         Placeholder::make('total_calculation')
                             ->label('Total de la commande')
@@ -247,13 +310,55 @@ class OrderResource extends Resource
                                     }
                                 }
 
-                                return '€ ' . number_format($total, 2, ',', ' ');
+                                return 'XOF ' . number_format($total, 0, ',', ' ');
                             })
                             ->extraAttributes(['class' => 'text-lg font-bold text-primary-600']),
                     ])
                     ->collapsible()
                     ->icon('heroicon-m-shopping-bag'),
             ]);
+    }
+
+    // Add form-level validation method
+    protected function mutateFormDataBeforeSave(array $data): array
+    {
+        // Validate stock for all order items before saving
+        if (isset($data['orderItems'])) {
+            foreach ($data['orderItems'] as $item) {
+                if (isset($item['product_id']) && isset($item['quantity'])) {
+                    $product = Product::find($item['product_id']);
+                    if ($product && intval($item['quantity']) > $product->stock) {
+                        throw new \Exception("Stock insuffisant pour le produit '{$product->name}'. Stock disponible: {$product->stock}");
+                    }
+                }
+            }
+        }
+
+        return $data;
+    }
+
+    // Ajouter une méthode pour gérer la mise à jour du stock après création/modification de commande
+    public static function afterSave(Model $record): void
+    {
+        // Mettre à jour le stock des produits après sauvegarde de la commande
+        if ($record->status !== 'annulée') {
+            foreach ($record->orderItems as $item) {
+                $product = Product::find($item->product_id);
+                if ($product) {
+                    // Décrémenter le stock
+                    $product->decrement('stock', $item->quantity);
+
+                    // Notification si stock faible
+                    if ($product->fresh()->stock < 5) {
+                        Notification::make()
+                            ->title('Stock faible')
+                            ->body("Le produit '{$product->name}' a un stock faible ({$product->stock} unités)")
+                            ->warning()
+                            ->send();
+                    }
+                }
+            }
+        }
     }
 
     public static function table(Table $table): Table
@@ -276,9 +381,9 @@ class OrderResource extends Resource
 
                 TextColumn::make('total')
                     ->label('Total')
-                    ->money('EUR')
+                    ->money('XOF')
                     ->sortable()
-                    ->summarize(Sum::make()->money('EUR'))
+                    ->summarize(Sum::make()->money('XOF'))
                     ->weight(FontWeight::Bold),
 
                 BadgeColumn::make('status')
@@ -442,11 +547,24 @@ class OrderResource extends Resource
                         ->color('danger')
                         ->visible(fn (Order $record): bool => !in_array($record->status, ['livrée', 'annulée']))
                         ->action(function (Order $record) {
+                            // Remettre les produits en stock lors de l'annulation
+                            foreach ($record->orderItems as $item) {
+                                $product = Product::find($item->product_id);
+                                if ($product) {
+                                    $product->increment('stock', $item->quantity);
+                                }
+                            }
                             $record->update(['status' => 'annulée']);
+
+                            Notification::make()
+                                ->title('Commande annulée')
+                                ->body('Le stock des produits a été remis à jour.')
+                                ->success()
+                                ->send();
                         })
                         ->requiresConfirmation()
                         ->modalHeading('Annuler la commande')
-                        ->modalDescription('Êtes-vous sûr de vouloir annuler cette commande ?')
+                        ->modalDescription('Êtes-vous sûr de vouloir annuler cette commande ? Le stock sera remis à jour.')
                         ->modalSubmitActionLabel('Oui, annuler'),
                 ])
                     ->label('Actions')
@@ -543,7 +661,7 @@ class OrderResource extends Resource
                             ->dateTime('d/m/Y H:i'),
                         Infolists\Components\TextEntry::make('total')
                             ->label('Total')
-                            ->money('EUR')
+                            ->money('XOF')
                             ->weight(FontWeight::Bold),
                     ])
                     ->columns(3),
@@ -560,10 +678,10 @@ class OrderResource extends Resource
                                     ->badge(),
                                 Infolists\Components\TextEntry::make('price')
                                     ->label('Prix unitaire')
-                                    ->money('EUR'),
+                                    ->money('XOF'),
                                 Infolists\Components\TextEntry::make('total')
                                     ->label('Total')
-                                    ->money('EUR')
+                                    ->money('XOF')
                                     ->weight(FontWeight::Bold),
                             ])
                             ->columns(4),

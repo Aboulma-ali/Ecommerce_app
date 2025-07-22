@@ -4,9 +4,14 @@ namespace App\Filament\Widgets;
 
 use App\Models\Product;
 use Filament\Widgets\ChartWidget;
-use App\Models\OrderItem;
 use Illuminate\Support\Facades\DB;
-
+/*
+                    Ce Widget
+- Il interroge la base via Eloquent + SQL brut.
+- Il génère un graphique interactif stylisé (couleurs, tooltip, axes).
+- Il est intégré dans Filament pour enrichir le dashboard avec des données
+ de vente visuelles
+*/
 class TopProductsWidget extends ChartWidget
 {
     protected static ?string $heading = '🏆 Produits les Plus Vendus';
