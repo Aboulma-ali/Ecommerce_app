@@ -84,9 +84,12 @@ new class extends Component
                                 @if($featuredProducts->isNotEmpty())
                                     <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
                                         @foreach($featuredProducts as $product)
-                                            <a href="#" class="block group/product">
+                                            {{-- ============================== --}}
+                                            {{-- LA CORRECTION EST SUR CETTE LIGNE --}}
+                                            {{-- ============================== --}}
+                                            <a href="{{ route('product.show', $product) }}" wire:navigate class="block group/product">
                                                 <div class="overflow-hidden rounded-lg mb-3">
-                                                    <img src="{{ Storage::url($product->image) ?? 'https://via.placeholder.com/400' }}" alt="{{ $product->name }}" class="w-full h-40 object-cover group-hover/product:scale-105 transition-transform duration-300">
+                                                    <img src="{{ $product->image ? Storage::url($product->image) : 'https://via.placeholder.com/400' }}" alt="{{ $product->name }}" class="w-full h-40 object-cover group-hover/product:scale-105 transition-transform duration-300">
                                                 </div>
                                                 <h4 class="font-semibold text-gray-800 truncate">{{ $product->name }}</h4>
                                                 <div class="flex items-baseline gap-2 mt-1">
