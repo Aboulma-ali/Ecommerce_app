@@ -6,6 +6,7 @@ use App\Livewire\HomePage;
 use App\Livewire\Product\ProductIndexPage;
 use Illuminate\Support\Facades\Route;
 use App\Livewire\ProductShowPage;
+use App\Livewire\CartPage;
 
 
 // Page d'accueil
@@ -18,6 +19,9 @@ Route::get('/produits', ProductIndexPage::class)->name('products.index');
 
 // Route pour la page de détail d'un produit (avec route-model binding sur le slug)
 Route::get('/produits/{slug}', ProductShowPage::class)->name('product.show');
+
+
+Route::get('/cart', CartPage::class)->name('cart.index');
 
 Route::view('dashboard', 'dashboard')
     ->middleware(['auth', 'verified'])
