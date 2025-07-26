@@ -1,10 +1,15 @@
 <?php
 
 use App\Http\Controllers\InvoiceController;
+use App\Livewire\CategoryPage;
 use App\Livewire\HomePage;
 use Illuminate\Support\Facades\Route;
 
+
+// Page d'accueil
 Route::get('/', HomePage::class)->name('home');
+// Page de catégorie (ex: /categorie/smartphones)
+Route::get('/categorie/{slug}', CategoryPage::class)->name('category.show');
 
 Route::view('dashboard', 'dashboard')
     ->middleware(['auth', 'verified'])
