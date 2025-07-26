@@ -153,7 +153,7 @@
                             </a>
 
                             {{-- Le composant Livewire pour ajouter au panier --}}
-                           {{-- <livewire:add-to-cart-button :product="$product" :key="'product-'.$product->id" />--}}
+                            <livewire:add-to-cart-button :product="$product" :key="'featured-product-'.$product->id" />
                         </div>
                         <div class="p-6">
                             <span class="text-sm text-gray-500">{{ $product->category->name ?? 'Sans catégorie' }}</span>
