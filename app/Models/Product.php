@@ -33,4 +33,9 @@ class Product extends Model
     {
         return $this->hasMany(OrderItem::class);
     }
+
+    public function getRouteKeyName()
+    {
+        return 'prod';
+    }
 }

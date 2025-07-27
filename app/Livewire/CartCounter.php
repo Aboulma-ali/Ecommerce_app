@@ -23,6 +23,6 @@ class CartCounter extends Component
 
     public function render()
     {
-        return view('livewire.cart-counter');
+        return view('livewire.cart-counter')->layout('layouts.app');
     }
 }

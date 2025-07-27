@@ -87,7 +87,7 @@ new class extends Component
                                             {{-- ============================== --}}
                                             {{-- LA CORRECTION EST SUR CETTE LIGNE --}}
                                             {{-- ============================== --}}
-                                            <a href="{{ route('product.show', $product) }}" wire:navigate class="block group/product">
+                                            <a href="" wire:navigate class="block group/product">
                                                 <div class="overflow-hidden rounded-lg mb-3">
                                                     <img src="{{ $product->image ? Storage::url($product->image) : 'https://via.placeholder.com/400' }}" alt="{{ $product->name }}" class="w-full h-40 object-cover group-hover/product:scale-105 transition-transform duration-300">
                                                 </div>

@@ -19,6 +19,6 @@ class AddToCartButton extends Component
 
     public function render()
     {
-        return view('livewire.add-to-cart-button');
+        return view('livewire.add-to-cart-button')->layout('layouts.app');
     }
 }

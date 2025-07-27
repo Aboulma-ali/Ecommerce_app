@@ -111,7 +111,7 @@
                             <!-- Le contenu est maintenant dynamique -->
                             <div class="relative h-full flex flex-col justify-end p-8 text-white">
                                 <h3 class="text-3xl font-bold mb-1">{{ $category->name }}</h3>
-                                <p class="text-gray-200">{{ $category->description }}</p>
+{{--                                <p class="text-gray-200">{{ $category->description }}</p>--}}
                                 <div class="mt-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300 transform -translate-x-4 group-hover:translate-x-0">
                                     <span class="inline-block px-5 py-2 text-sm font-semibold bg-white text-black rounded-full">Explorer</span>
                                 </div>
@@ -144,7 +144,7 @@
                     <div class="bg-white rounded-xl shadow-md overflow-hidden group transition-all duration-300 hover:shadow-2xl hover:-translate-y-2">
                         <div class="relative">
                             {{-- AMÉLIORATION 1: On passe l'objet $product en entier. C'est plus propre (route-model binding). --}}
-                            <a href="{{ route('product.show', $product) }}" wire:navigate class="block h-64">
+                            <a href="" wire:navigate class="block h-64">
 
                                 {{-- AMÉLIORATION 2: On ajoute une image de secours si le produit n'a pas d'image. --}}
                                 <img src="{{ $product->image ? Storage::url($product->image) : 'https://via.placeholder.com/400x400.png/f3f4f6/9ca3af?text=Image+Indisponible' }}"
