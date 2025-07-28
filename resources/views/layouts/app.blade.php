@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>{{ config('app.name', 'ShopVibe') }}</title>
+    <title>{{ $title ?? config('app.name', 'ShopVibe') }}</title>
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
@@ -17,8 +17,8 @@
     <!-- Livewire Styles -->
     @livewireStyles
 </head>
-<body class="font-sans antialiased bg-gray-50">
-<div class="min-h-screen">
+<body class="font-sans antialiased bg-gray-50 text-gray-800">
+<div class="min-h-screen flex flex-col">
 
     <!-- === INCLUSION DE LA BARRE DE NAVIGATION === -->
     <livewire:layout.navigation />
@@ -36,6 +36,10 @@
     <main>
         {{ $slot }}
     </main>
+
+    <!-- Footer (via un  -->
+    @include('layouts.partials.footer')
+
 </div>
 
 <!-- Livewire Scripts -->

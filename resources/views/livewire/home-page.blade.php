@@ -141,28 +141,31 @@
 
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
                 @forelse($featuredProducts as $product)
-                    <div class="bg-white rounded-xl shadow-md overflow-hidden group transition-all duration-300 hover:shadow-2xl hover:-translate-y-2">
-                        <div class="relative">
-                            {{-- AMÉLIORATION 1: On passe l'objet $product en entier. C'est plus propre (route-model binding). --}}
-                            <a href="" wire:navigate class="block h-64">
+                    {{-- On vérifie que la variable $product n'est pas null --}}
+                    @if($product)
 
-                                {{-- AMÉLIORATION 2: On ajoute une image de secours si le produit n'a pas d'image. --}}
-                                <img src="{{ $product->image ? Storage::url($product->image) : 'https://via.placeholder.com/400x400.png/f3f4f6/9ca3af?text=Image+Indisponible' }}"
-                                     alt="{{ $product->name }}"
-                                     class="w-full h-full object-cover">
-                            </a>
+                        <div class="bg-white rounded-xl shadow-md overflow-hidden group transition-all duration-300 hover:shadow-2xl hover:-translate-y-2">
+                            <div class="relative">
 
-                            {{-- Le composant Livewire pour ajouter au panier --}}
-                            <livewire:add-to-cart-button :product="$product" :key="'featured-product-'.$product->id" />
-                        </div>
-                        <div class="p-6">
-                            <span class="text-sm text-gray-500">{{ $product->category->name ?? 'Sans catégorie' }}</span>
-                            <h3 class="font-semibold text-lg text-gray-800 mt-1 mb-2 truncate">{{ $product->name }}</h3>
-                            <div class="flex items-baseline gap-2">
-                                <span class="text-2xl font-bold text-blue-600">{{ number_format($product->price, 2, ',', ' ') }}€</span>
+                                {{-- Ce lien ne sera généré que si $product est valide --}}
+                                <a href="{{ route('product.show', $product) }}" wire:navigate class="block h-64">
+                                    <img src="{{ $product->image ? Storage::url($product->image) : 'https://via.placeholder.com/400x400.png' }}"
+                                         alt="{{ $product->name }}"
+                                         class="w-full h-full object-cover">
+                                </a>
+
+                                <livewire:add-to-cart-button :product="$product" :key="'featured-product-'.$product->id" />
+                            </div>
+                            <div class="p-6">
+                                <span class="text-sm text-gray-500">{{ $product->category->name ?? 'Sans catégorie' }}</span>
+                                <h3 class="font-semibold text-lg text-gray-800 truncate">{{ $product->name }}</h3>
+                                <p class="text-2xl font-bold text-blue-600">{{ number_format($product->price, 2, ',', ' ') }}€</p>
                             </div>
                         </div>
-                    </div>
+
+                    @endif
+                    {{-- Fin de la condition de sécurité --}}
+
                 @empty
                     <div class="col-span-full text-center text-gray-500 py-10">
                         <p>Notre sélection est en cours de préparation. Revenez bientôt !</p>
@@ -230,60 +233,6 @@
     <!-- ============================================ -->
     <!-- FOOTER -->
     <!-- ============================================ -->
-    <footer class="bg-gray-900 text-white">
-        <div class="max-w-screen-xl mx-auto py-16 px-4 sm:px-6 lg:px-8">
-            <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-8">
-                <div class="col-span-2 md:col-span-4 lg:col-span-1">
-                    <a href="#" class="flex items-center group mb-4">
-                        <div class="bg-gradient-to-r from-blue-600 to-purple-600 p-2 rounded-xl mr-3">
-                            <x-application-logo class="block h-8 w-auto fill-current text-white" />
-                        </div>
-                        <span class="text-2xl font-bold">ShopVibe</span>
-                    </a>
-                    <p class="text-gray-400">La destination shopping pour un style unique et une qualité inégalée.</p>
-                </div>
-                <div>
-                    <h3 class="font-bold mb-4">Shop</h3>
-                    <ul class="space-y-2 text-gray-400">
-                        <li><a href="#" class="hover:text-white">Nouveautés</a></li>
-                        <li><a href="#" class="hover:text-white">Promotions</a></li>
-                        <li><a href="#" class="hover:text-white">Meilleures ventes</a></li>
-                    </ul>
-                </div>
-                <div>
-                    <h3 class="font-bold mb-4">Support</h3>
-                    <ul class="space-y-2 text-gray-400">
-                        <li><a href="#" class="hover:text-white">Contact</a></li>
-                        <li><a href="#" class="hover:text-white">FAQ</a></li>
-                        <li><a href="#" class="hover:text-white">Suivi de commande</a></li>
-                        <li><a href="#" class="hover:text-white">Retours</a></li>
-                    </ul>
-                </div>
-                <div>
-                    <h3 class="font-bold mb-4">Légal</h3>
-                    <ul class="space-y-2 text-gray-400">
-                        <li><a href="#" class="hover:text-white">Conditions de vente</a></li>
-                        <li><a href="#" class="hover:text-white">Politique de confidentialité</a></li>
-                        <li><a href="#" class="hover:text-white">Mentions légales</a></li>
-                    </ul>
-                </div>
-                <div class="col-span-2 md:col-span-1">
-                    <h3 class="font-bold mb-4">Newsletter</h3>
-                    <p class="text-gray-400 mb-4">Recevez nos offres en avant-première.</p>
-                    <div class="flex">
-                        <input type="email" placeholder="Votre email" class="w-full px-4 py-2 rounded-l-md border-0 bg-gray-800 focus:ring-2 focus:ring-blue-500">
-                        <button class="bg-blue-600 px-4 rounded-r-md hover:bg-blue-700">OK</button>
-                    </div>
-                </div>
-            </div>
-            <div class="mt-16 pt-8 border-t border-gray-800 flex flex-col sm:flex-row justify-between items-center">
-                <p class="text-gray-500">&copy; {{ date('Y') }} ShopVibe. Tous droits réservés.</p>
-                <div class="flex space-x-4 mt-4 sm:mt-0">
-                    <!-- Social icons -->
-                </div>
-            </div>
-        </div>
-    </footer>
 
 
     <!-- Styles pour les animations custom -->

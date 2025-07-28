@@ -79,39 +79,6 @@ new class extends Component
                             Nos Produits
                             <svg class="ml-1 h-4 w-4 transition-transform duration-200 group-hover:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                         </button>
-                        <div class="absolute top-full left-1/2 -translate-x-1/2 mt-3 w-screen max-w-4xl opacity-0 invisible group-hover:opacity-100 group-hover:visible group-hover:mt-1 transition-all duration-300 z-20">
-                            <div class="bg-white rounded-xl shadow-2xl border border-gray-100 p-4">
-                                @if($featuredProducts->isNotEmpty())
-                                    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-                                        @foreach($featuredProducts as $product)
-                                            {{-- ============================== --}}
-                                            {{-- LA CORRECTION EST SUR CETTE LIGNE --}}
-                                            {{-- ============================== --}}
-                                            <a href="" wire:navigate class="block group/product">
-                                                <div class="overflow-hidden rounded-lg mb-3">
-                                                    <img src="{{ $product->image ? Storage::url($product->image) : 'https://via.placeholder.com/400' }}" alt="{{ $product->name }}" class="w-full h-40 object-cover group-hover/product:scale-105 transition-transform duration-300">
-                                                </div>
-                                                <h4 class="font-semibold text-gray-800 truncate">{{ $product->name }}</h4>
-                                                <div class="flex items-baseline gap-2 mt-1">
-                                                    <span class="text-blue-600 font-bold text-lg">{{ number_format($product->price, 2, ',', ' ') }}€</span>
-                                                </div>
-                                            </a>
-                                        @endforeach
-                                        <!-- Promo Block -->
-                                        <div class="bg-gradient-to-br from-purple-50 to-blue-100 rounded-lg p-6 flex flex-col justify-center items-center text-center">
-                                            <div class="bg-gradient-to-r from-blue-600 to-purple-600 text-white w-12 h-12 rounded-full flex items-center justify-center mb-3">
-                                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
-                                            </div>
-                                            <h3 class="font-bold text-gray-800">Ventes Flash</h3>
-                                            <p class="text-sm text-gray-600 mt-1">Nos offres du moment !</p>
-                                            <a href="#" class="mt-4 px-4 py-2 text-sm font-semibold text-white bg-blue-600 rounded-full hover:bg-blue-700 transition-all">Découvrir</a>
-                                        </div>
-                                    </div>
-                                @else
-                                    <p class="p-4 text-sm text-gray-500 text-center">Aucun produit à afficher.</p>
-                                @endif
-                            </div>
-                        </div>
                     </div>
                 </div>
             </div>
