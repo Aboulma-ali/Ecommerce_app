@@ -109,7 +109,7 @@ new class extends Component
                             <div class="px-4 py-3 border-b border-gray-100"><div class="font-medium text-base text-gray-800">{{ auth()->user()->name }}</div><div class="font-medium text-sm text-gray-500">{{ auth()->user()->email }}</div></div>
                             <div class="py-1">
                                 <x-dropdown-link :href="route('profile')" wire:navigate>{{ __('Mon Profil') }}</x-dropdown-link>
-                                <x-dropdown-link href="#">{{ __('Mes Commandes') }}</x-dropdown-link>
+                                <x-dropdown-link href="{{route('success.index')}}">{{ __('Mes Commandes') }}</x-dropdown-link>
                             </div>
                             <div class="border-t border-gray-100 py-1">
                                 <button wire:click="logout" class="w-full text-left block px-4 py-2 text-sm leading-5 text-red-600 hover:bg-red-50 focus:outline-none focus:bg-red-50 transition duration-150 ease-in-out">{{ __('Déconnexion') }}</button>

@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use Illuminate\Support\Facades\Mail;
 use Livewire\Component;
 use App\Models\Product;
 use App\Models\Order;
@@ -220,6 +221,7 @@ class CheckoutPage extends Component
                     'status' => 'en_attente',
                     'payment_status' => 'non_payé',
                     'payment_method' => 'à_la_livraison',
+
                 ]);
 
                 foreach ($this->cartItems as $item) {
@@ -232,6 +234,7 @@ class CheckoutPage extends Component
                         'total' => $product->price * $item['quantity'],
                     ]);
                     $product->decrement('stock', $item['quantity']);
+//                    Mail::to(request()->user())->send(new Order($order));
                 }
 
                 return $order;
@@ -244,7 +247,7 @@ class CheckoutPage extends Component
             Log::error('Error in placeOrder: ' . $e->getMessage(), ['exception' => $e]);
             $this->dispatch('error', 'Une erreur est survenue lors de la création de la commande : ' . $e->getMessage());
             session()->flash('error', $e->getMessage());
-            return redirect()->route('cart');
+            return redirect()->route('success.index');
         }
     }
 
@@ -330,7 +333,7 @@ class CheckoutPage extends Component
         } catch (\Exception $e) {
             Log::error('Error in render: ' . $e->getMessage(), ['exception' => $e]);
             session()->flash('error', $e->getMessage());
-            return redirect()->route('/');
+//            return redirect()->route('cancel.index');
         }
 
         return view('livewire.checkout-page')->layout('layouts.app');
