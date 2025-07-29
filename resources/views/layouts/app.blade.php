@@ -10,7 +10,6 @@
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600,700&display=swap" rel="stylesheet" />
-
     <!-- Scripts et Styles via Vite -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
@@ -44,5 +43,15 @@
 
 <!-- Livewire Scripts -->
 @livewireScripts
+
+<!-- Script pour gérer les redirections déclenchées par Livewire -->
+<script>
+    document.addEventListener('livewire:initialized', () => {
+        Livewire.on('redirect', (event) => {
+            window.location.href = event.url;
+        });
+    });
+</script>
+<script src="https://js.stripe.com/v3/"></script>
 </body>
 </html>

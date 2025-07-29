@@ -80,7 +80,7 @@
                             <span>{{ number_format($this->total, 2, ',', ' ') }}€</span>
                         </div>
 
-                        <a href="#" class="group mt-8 block w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white font-bold text-lg text-center py-3 px-6 rounded-full hover:shadow-2xl hover:scale-105 transform transition-all duration-300">
+                        <a href="{{ route('checkout') }}" wire:navigate class="group mt-8 block w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white font-bold text-lg text-center py-3 px-6 rounded-full hover:shadow-2xl hover:scale-105 transform transition-all duration-300">
                             <span class="group-hover:tracking-wider transition-all">Passer la commande</span>
                         </a>
                     </div>

@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\InvoiceController;
 use App\Livewire\CategoryPage;
+use App\Livewire\CheckoutPage;
 use App\Livewire\HomePage;
 use App\Livewire\Product\ProductIndexPage;
 use Illuminate\Support\Facades\Route;
@@ -20,6 +21,8 @@ Route::get('/produits', ProductIndexPage::class)->name('products.index');
 Route::get('/product/{product}', ProductShowPage::class)->name('product.show');
 
 Route::get('/cart', CartPage::class)->name('cart.index');
+
+Route::get('/checkout', CheckoutPage::class)->name('checkout')->middleware('auth');
 
 Route::view('dashboard', 'dashboard')
     ->middleware(['auth', 'verified'])
