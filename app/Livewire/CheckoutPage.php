@@ -180,7 +180,7 @@ class CheckoutPage extends Component
             Log::error('General error in createPaymentIntent: ' . $e->getMessage(), ['exception' => $e]);
             $this->dispatch('error', $e->getMessage());
             session()->flash('error', $e->getMessage());
-            return redirect()->route('cart');
+            return redirect()->route('cart.index');
         }
     }
 
@@ -291,10 +291,9 @@ class CheckoutPage extends Component
                     'user_id' => auth()->id(),
                     'shipping_address_id' => $address->id,
                     'total' => $serverTotal,
-                    'status' => 'en_traitement',
+                    'status' => 'en_attente',
                     'payment_status' => 'payé',
                     'payment_method' => 'en_ligne',
-                    'payment_intent_id' => $paymentIntent->id,
                 ]);
 
                 $productIds = collect($this->cartItems)->pluck('product_id');
@@ -322,7 +321,7 @@ class CheckoutPage extends Component
             Log::error('Error in confirmOrder: ' . $e->getMessage(), ['exception' => $e]);
             $this->dispatch('error', 'Une erreur critique est survenue : ' . $e->getMessage());
             session()->flash('error', $e->getMessage());
-            return redirect()->route('cart');
+            return redirect()->route('success.index');
         }
     }
 

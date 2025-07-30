@@ -31,10 +31,6 @@ Route::get('/success', SuccessPage::class)->name('success.index')->middleware('a
 
 Route::get('/cancel', CancelPage::class)->name('cancel.index')->middleware('auth');
 
-Route::view('dashboard', 'dashboard')
-    ->middleware(['auth', 'verified'])
-    ->name('dashboard');
-
 Route::view('profile', 'profile')
     ->middleware(['auth'])
     ->name('profile');
@@ -44,7 +40,11 @@ require __DIR__.'/auth.php';
 Route::get('/orders/{order}/invoice', [InvoiceController::class, 'download'])
     ->name('orders.invoice')
     ->middleware('auth');
-//Route::get('/invoices',InvoiceController::class)->name('invoices.index')->middleware('auth');
-Route::get('/invoice/{order}/download', [InvoiceController::class, 'download'])->name('invoice.download');
+
+Route::get('/invoice/{order}/download', [InvoiceController::class, 'download'])->name('invoice.download')->middleware('auth');
+
+//Route::view('dashboard', 'dashboard')
+//    ->middleware(['auth', 'verified'])
+//    ->name('dashboard');
 
 Route::get('/commande', CommandePage::class)->name('commande.index')->middleware('auth');

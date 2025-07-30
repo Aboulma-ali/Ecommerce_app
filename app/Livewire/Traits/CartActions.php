@@ -74,5 +74,6 @@ trait CartActions
     {
         $this->updateCart(collect());
         $this->dispatch('notify', message: 'Le panier a été vidé.');
+        $this->dispatch('cartUpdated');
     }
 }
