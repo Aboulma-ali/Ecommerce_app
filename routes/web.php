@@ -4,6 +4,7 @@ use App\Http\Controllers\InvoiceController;
 use App\Livewire\CancelPage;
 use App\Livewire\CategoryPage;
 use App\Livewire\CheckoutPage;
+use App\Livewire\CommandePage;
 use App\Livewire\HomePage;
 use App\Livewire\Product\ProductIndexPage;
 use App\Livewire\SuccessPage;
@@ -45,3 +46,5 @@ Route::get('/orders/{order}/invoice', [InvoiceController::class, 'download'])
     ->middleware('auth');
 //Route::get('/invoices',InvoiceController::class)->name('invoices.index')->middleware('auth');
 Route::get('/invoice/{order}/download', [InvoiceController::class, 'download'])->name('invoice.download');
+
+Route::get('/commande', CommandePage::class)->name('commande.index')->middleware('auth');
