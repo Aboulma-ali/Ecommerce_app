@@ -159,7 +159,7 @@
                             <div class="p-6">
                                 <span class="text-sm text-gray-500">{{ $product->category->name ?? 'Sans catégorie' }}</span>
                                 <h3 class="font-semibold text-lg text-gray-800 truncate">{{ $product->name }}</h3>
-                                <p class="text-2xl font-bold text-blue-600">{{ number_format($product->price, 2, ',', ' ') }}€</p>
+                                <p class="text-2xl font-bold text-blue-600">{{ number_format($product->price, 0, ',', ' ') }}FCFA</p>
                             </div>
                         </div>
 

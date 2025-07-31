@@ -4,7 +4,7 @@
         <!-- Titre de la page -->
         <div class="text-center mb-12">
             <h1 class="text-4xl lg:text-5xl font-extrabold text-gray-900 tracking-tight">
-                Votre Panier
+                Votre Panier 👍
             </h1>
             <p class="mt-4 text-lg text-gray-600">Vérifiez vos articles et finalisez votre commande.</p>
         </div>
@@ -27,7 +27,7 @@
                             <div class="flex-grow flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                                 <div class="flex-grow">
                                     <h3 class="font-semibold text-gray-800 text-lg">{{ $item['name'] }}</h3>
-                                    <p class="text-gray-500">{{ number_format($item['price'], 2, ',', ' ') }}€</p>
+                                    <p class="text-gray-500">{{ number_format($item['price'], 0, ',', ' ') }}FCFA</p>
                                     <button wire:click="removeFromCart('{{ $id }}')" class="mt-2 text-sm text-red-500 hover:text-red-700 font-medium transition-colors flex items-center gap-1">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" /></svg>
                                         Retirer
@@ -47,15 +47,16 @@
                                     </div>
 
                                     <!-- Prix total de l'article -->
-                                    <p class="font-bold text-gray-900 w-24 text-right">{{ number_format($item['quantity'] * $item['price'], 2, ',', ' ') }}€</p>
+                                    <p class="font-bold text-gray-900 w-24 text-right">{{ number_format($item['quantity'] * $item['price'], 0, ',', ' ') }}FCFA</p>
                                 </div>
                             </div>
                         </div>
                     @endforeach
                     <div class="text-right mt-4">
-                        <button wire:click="clearCart" class="text-sm font-medium text-gray-500 hover:text-red-600 transition-colors">
-                            Vider le panier
-                        </button>
+                        Votre Satisfaction, Notre priorite
+{{--                        <button wire:click="clearCart" class="text-sm font-medium text-gray-500 hover:text-red-600 transition-colors">--}}
+{{--                            Vider le panier--}}
+{{--                        </button>--}}
                     </div>
                 </div>
 
@@ -67,7 +68,7 @@
                         <div class="space-y-3 text-gray-700">
                             <div class="flex justify-between">
                                 <span>Sous-total</span>
-                                <span>{{ number_format($this->subtotal, 2, ',', ' ') }}€</span>
+                                <span>{{ number_format($this->subtotal, 0, ',', ' ') }}FCFA</span>
                             </div>
                             <div class="flex justify-between">
                                 <span>Livraison</span>
@@ -77,7 +78,7 @@
 
                         <div class="flex justify-between font-bold text-xl mt-6 pt-4 border-t">
                             <span>Total</span>
-                            <span>{{ number_format($this->total, 2, ',', ' ') }}€</span>
+                            <span>{{ number_format($this->total, 0, ',', ' ') }}FCFA</span>
                         </div>
 
                         <a href="{{ route('checkout') }}" wire:navigate class="group mt-8 block w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white font-bold text-lg text-center py-3 px-6 rounded-full hover:shadow-2xl hover:scale-105 transform transition-all duration-300">

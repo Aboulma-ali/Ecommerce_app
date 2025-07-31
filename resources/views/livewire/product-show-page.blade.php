@@ -54,7 +54,7 @@
                 <h1 class="text-3xl lg:text-4xl font-extrabold text-gray-900 tracking-tight mt-2 mb-4">{{ $product->name }}</h1>
 
                 <div class="mb-6">
-                    <span class="text-4xl font-bold text-blue-600">{{ number_format($product->price, 2, ',', ' ') }}€</span>
+                    <span class="text-4xl font-bold text-blue-600">{{ number_format($product->price, 0, ',', ' ') }}FCFA</span>
                 </div>
 
                 <div class="prose prose-lg text-gray-600 mb-8">
@@ -87,7 +87,7 @@
                             </div>
                             <div class="p-4">
                                 <h3 class="font-semibold text-gray-800 truncate">{{ $similarProduct->name }}</h3>
-                                <p class="text-lg font-bold text-blue-600">{{ number_format($similarProduct->price, 2, ',', ' ') }}€</p>
+                                <p class="text-lg font-bold text-blue-600">{{ number_format($similarProduct->price, 0, ',', ' ') }}FCFA</p>
                             </div>
                         </div>
                     @endforeach

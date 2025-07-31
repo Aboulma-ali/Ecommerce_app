@@ -50,7 +50,7 @@
                         Total:
                     </p>
                     <p class="text-base font-semibold leading-4 text-blue-600 dark:text-gray-400">
-                        {{ number_format($order->total, 2, ',', ' ') }} €
+                        {{ number_format($order->total, 0, ',', ' ') }} FCFA
                     </p>
                 </div>
                 <div class="w-full px-4 mb-4 md:w-1/4">
@@ -100,10 +100,10 @@
                                     {{ $item->quantity }}
                                 </td>
                                 <td class="border border-gray-200 dark:border-gray-700 px-4 py-2 text-right text-sm text-gray-800 dark:text-gray-400">
-                                    {{ number_format($item->price, 2, ',', ' ') }} €
+                                    {{ number_format($item->price, 0, ',', ' ') }} FCFA
                                 </td>
                                 <td class="border border-gray-200 dark:border-gray-700 px-4 py-2 text-right text-sm font-medium text-gray-800 dark:text-gray-400">
-                                    {{ number_format($item->total, 2, ',', ' ') }} €
+                                    {{ number_format($item->total, 0, ',', ' ') }} FCFA
                                 </td>
                             </tr>
                         @endforeach
@@ -122,12 +122,12 @@
                             <div class="flex justify-between w-full">
                                 <p class="text-base leading-4 text-gray-800 dark:text-gray-400">Sous-total</p>
                                 <p class="text-base leading-4 text-gray-600 dark:text-gray-400">
-                                    {{ number_format($order->orderItems->sum('total'), 2, ',', ' ') }} €
+                                    {{ number_format($order->orderItems->sum('total'), 0, ',', ' ') }} FCFA
                                 </p>
                             </div>
                             <div class="flex items-center justify-between w-full">
                                 <p class="text-base leading-4 text-gray-800 dark:text-gray-400">Réduction</p>
-                                <p class="text-base leading-4 text-gray-600 dark:text-gray-400">0,00 €</p>
+                                <p class="text-base leading-4 text-gray-600 dark:text-gray-400">0,00 FCFA</p>
                             </div>
                             <div class="flex items-center justify-between w-full">
                                 <p class="text-base leading-4 text-gray-800 dark:text-gray-400">Livraison</p>
@@ -137,7 +137,7 @@
                         <div class="flex items-center justify-between w-full">
                             <p class="text-base font-semibold leading-4 text-gray-800 dark:text-gray-400">Total</p>
                             <p class="text-base font-semibold leading-4 text-gray-600 dark:text-gray-400">
-                                {{ number_format($order->total, 2, ',', ' ') }} €
+                                {{ number_format($order->total, 0, ',', ' ') }} FCFA
                             </p>
                         </div>
                     </div>
