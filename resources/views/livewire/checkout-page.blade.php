@@ -280,7 +280,7 @@
                                 <div class="flex items-center justify-between mt-6">
                                     <button wire:click="previousStep" class="text-gray-600 font-bold py-3 px-4 rounded-lg hover:bg-gray-100">&larr; Revenir</button>
                                     <button @click="handleSubmit()" :disabled="isLoading" class="bg-green-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-green-700 disabled:opacity-50">
-                                        <span x-show="!isLoading">Payer {{ number_format($this->secureTotal, 2, ',', ' ') }}€</span>
+                                        <span x-show="!isLoading">Payer {{ number_format($this->secureTotal, 0, ',', ' ') }}FCFA</span>
                                         <span x-show="isLoading">Paiement en cours...</span>
                                     </button>
                                 </div>
@@ -314,14 +314,14 @@
                                     <p class="text-sm text-gray-500">Qté: {{ $item['quantity'] }}</p>
                                 </div>
                             </div>
-                            <p class="font-semibold">{{ number_format($item['quantity'] * $item['price'], 2, ',', ' ') }}€</p>
+                            <p class="font-semibold">{{ number_format($item['quantity'] * $item['price'], 0, ',', ' ') }}FCFA</p>
                         </div>
                     @endforeach
                 </div>
                 <div class="mt-6 pt-4 border-t space-y-2">
                     <div class="flex justify-between text-gray-700">
                         <span>Sous-total</span>
-                        <span>{{ number_format($this->subtotal, 2, ',', ' ') }}€</span>
+                        <span>{{ number_format($this->subtotal, 0, ',', ' ') }}FCFA</span>
                     </div>
                     <div class="flex justify-between text-gray-700">
                         <span>Livraison</span>
@@ -329,7 +329,7 @@
                     </div>
                     <div class="flex justify-between font-bold text-xl mt-2 pt-2 border-t">
                         <span>Total</span>
-                        <span>{{ number_format($this->secureTotal, 2, ',', ' ') }}€</span>
+                        <span>{{ number_format($this->secureTotal, 0, ',', ' ') }}FCFA</span>
                     </div>
                 </div>
             </div>

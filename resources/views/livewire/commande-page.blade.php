@@ -91,15 +91,15 @@
                         <tr class="hover:bg-gray-50">
                             <td class="py-2 px-4 border-b">{{ $item->product->name }}</td>
                             <td class="py-2 px-4 border-b text-center">{{ $item->quantity }}</td>
-                            <td class="py-2 px-4 border-b text-right">{{ number_format($item->price, 2, ',', ' ') }} €</td>
-                            <td class="py-2 px-4 border-b text-right">{{ number_format($item->total, 2, ',', ' ') }} €</td>
+                            <td class="py-2 px-4 border-b text-right">{{ number_format($item->price, 0, ',', ' ') }} FCFA</td>
+                            <td class="py-2 px-4 border-b text-right">{{ number_format($item->total, 0, ',', ' ') }} FCFA</td>
                         </tr>
                     @endforeach
                     </tbody>
                     <tfoot class="bg-gray-100 font-bold">
                     <tr>
                         <td colspan="3" class="py-3 px-4 text-right">Total de la commande</td>
-                        <td class="py-3 px-4 text-right text-xl">{{ number_format($selectedOrder->total, 2, ',', ' ') }} €</td>
+                        <td class="py-3 px-4 text-right text-xl">{{ number_format($selectedOrder->total, 0, ',', ' ') }} FCFA</td>
                     </tr>
                     </tfoot>
                 </table>
@@ -161,7 +161,7 @@
                                     {{ ucfirst(str_replace('_', ' ', $order->payment_status)) }}
                                 </span>
                             </td>
-                            <td class="py-2 px-4 border-b text-right font-semibold">{{ number_format($order->total, 2, ',', ' ') }} €</td>
+                            <td class="py-2 px-4 border-b text-right font-semibold">{{ number_format($order->total, 0, ',', ' ') }} FCFA</td>
                             <td class="py-2 px-4 border-b text-center">
                                 <a href="{{route('success.index')}}" class="px-3 py-1 bg-indigo-500 text-white text-sm rounded-md hover:bg-indigo-600 transition">
                                     Voir détails
