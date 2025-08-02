@@ -20,6 +20,7 @@ use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\FileUpload;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Actions\ActionGroup;
+use Filament\Notifications\Notification;
 
 class CategoryResource extends Resource
 {
@@ -34,7 +35,6 @@ class CategoryResource extends Resource
     protected static ?string $pluralModelLabel = 'Catégories';
 
     protected static ?int $navigationSort = 1;
-
 
     // 🔥 BADGE DANS LA SIDEBAR - AFFICHE LE NOMBRE
     public static function getNavigationBadge(): ?string
@@ -54,6 +54,7 @@ class CategoryResource extends Resource
             default => 'success'         // Vert si 20 ou plus
         };
     }
+
     public static function form(Form $form): Form
     {
         return $form
@@ -189,10 +190,23 @@ class CategoryResource extends Resource
                     Tables\Actions\EditAction::make()
                         ->color('warning'),
                     Tables\Actions\DeleteAction::make()
-                        ->before(function (Category $record) {
+                        ->color('danger')
+                        ->requiresConfirmation()
+                        ->modalHeading('Supprimer la catégorie')
+                        ->modalDescription('Êtes-vous sûr de vouloir supprimer cette catégorie ?')
+                        ->modalSubmitActionLabel('Oui, supprimer')
+                        ->before(function (Tables\Actions\DeleteAction $action, Category $record) {
                             // Vérifier s'il y a des produits associés
-                            if ($record->products()->count() > 0) {
-                                throw new \Exception('Impossible de supprimer cette catégorie car elle contient des produits.');
+                            if ($record->products()->exists()) {
+                                Notification::make()
+                                    ->danger()
+                                    ->title('Suppression impossible')
+                                    ->body("Cette catégorie contient {$record->products()->count()} produit(s) et ne peut pas être supprimée.")
+                                    ->persistent()
+                                    ->send();
+
+                                // Annuler l'action
+                                $action->cancel();
                             }
                         }),
                 ])
@@ -200,11 +214,29 @@ class CategoryResource extends Resource
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make()
-                        ->before(function ($records) {
+                        ->requiresConfirmation()
+                        ->modalHeading('Supprimer les catégories sélectionnées')
+                        ->modalDescription('Êtes-vous sûr de vouloir supprimer ces catégories ?')
+                        ->modalSubmitActionLabel('Oui, supprimer')
+                        ->before(function (Tables\Actions\DeleteBulkAction $action, $records) {
+                            $categoriesWithProducts = [];
+
                             foreach ($records as $record) {
-                                if ($record->products()->count() > 0) {
-                                    throw new \Exception('Impossible de supprimer certaines catégories car elles contiennent des produits.');
+                                if ($record->products()->exists()) {
+                                    $categoriesWithProducts[] = $record->name;
                                 }
+                            }
+
+                            if (!empty($categoriesWithProducts)) {
+                                Notification::make()
+                                    ->danger()
+                                    ->title('Suppression impossible')
+                                    ->body('Les catégories suivantes contiennent des produits et ne peuvent pas être supprimées : ' . implode(', ', $categoriesWithProducts))
+                                    ->persistent()
+                                    ->send();
+
+                                // Annuler l'action
+                                $action->cancel();
                             }
                         }),
                 ]),

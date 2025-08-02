@@ -41,10 +41,6 @@ class ProductIndexPage extends Component
             $query->where('stock', '>', 0);
         }
 
-        // Filtrer par promotion
-        if ($this->onSale) {
-            $query->where('discount', '>', 0);
-        }
 
         // Filtrer par prix
         if ($this->priceRange < 500000) {

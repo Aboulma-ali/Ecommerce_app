@@ -1,3 +1,16 @@
+{{-- Le bouton est désactivé si le stock est à 0 ou moins --}}
+@if($product->stock <= 0)
+    <button
+        class="flex-1 flex items-center justify-center w-full px-4 py-2 bg-gray-400 text-white font-medium rounded-lg cursor-not-allowed"
+        disabled>
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728L5.636 5.636m12.728 12.728L18.364 5.636M5.636 18.364l12.728-12.728" />
+        </svg>
+        <span class="ml-2">Épuisé</span>
+    </button>
+@else
+    {{-- Le bouton est actif et appelle la méthode "add" au clic --}}
 <button wire:click="add" class="absolute bottom-4 right-4 bg-blue-600 text-white p-3 rounded-full shadow-lg opacity-0 group-hover:opacity-100 transform translate-y-2 group-hover:translate-y-0 transition-all duration-300 hover:scale-110">
     <span wire:loading.remove wire:target="add">
         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>
@@ -10,3 +23,4 @@
         </svg>
     </span>
 </button>
+@endif

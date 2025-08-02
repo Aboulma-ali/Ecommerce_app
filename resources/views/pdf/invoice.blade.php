@@ -91,18 +91,18 @@
         <div>
             <img src="{{ public_path('logo.png') }}" class="logo" alt="Logo">
             <div style="margin-top: 6px; font-size: 13px; color: #888;">
-                www.maboutique.fr
+                www.shopvib.sn
             </div>
         </div>
         <div class="company-info">
-            <strong>Ma Boutique SARL</strong><br>
-            123 rue du Commerce<br>
-            75000 Paris, France<br>
-            SIRET : 123 456 789 00012
+            <strong>Ma Boutique SHOPVIB</strong><br>
+            123 Boulevard Canal IV<br>
+            11500 Dakar, Senegal<br>
+            NINEA : 123 456 789 00012
         </div>
     </div>
 
-    <h1>Facture #{{ $order->id }}</h1>
+    <h1>Numero de Facture : {{ $order->id }}</h1>
     <div class="details">
         <div><strong>Date de commande :</strong> {{ $order->ordered_at ?? $order->created_at->format('d/m/Y') }}</div>
         <div><strong>Mode de paiement :</strong> {{ $order->payment_method }}</div>
@@ -124,8 +124,8 @@
         <tr>
             <th>Produit</th>
             <th>Quantité</th>
-            <th>Prix Unitaire (€)</th>
-            <th>Sous-total (€)</th>
+            <th>Prix Unitaire (FCFA)</th>
+            <th>Sous-total (FCFA)</th>
         </tr>
         </thead>
         <tbody>
@@ -133,20 +133,24 @@
             <tr>
                 <td>{{ $item->product->name }}</td>
                 <td>{{ $item->quantity }}</td>
-                <td>{{ number_format($item->price, 2) }}</td>
-                <td>{{ number_format($item->total, 2) }}</td>
+                <td>{{ number_format($item->price, 0) }}FCFA</td>
+                <td>{{ number_format($item->total, 0) }}FCFA</td>
             </tr>
         @endforeach
         <tr class="total-row">
             <td colspan="3" style="text-align:right;">Total TTC :</td>
-            <td>{{ number_format($order->total, 2) }} €</td>
+            <td>{{ number_format($order->total, 0) }} FCFA</td>
         </tr>
         </tbody>
     </table>
 
     <div class="footer">
+        Merci de nous faire confiance ! Votre satisfaction est notre priorité.<br>
+    </div>
+
+    <div class="footer">
         Facture générée automatiquement. Merci pour votre commande !<br>
-        Pour toute question, contactez-nous à support@maboutique.fr
+        Pour toute question, contactez-nous à support@shopvib.sn
     </div>
 </div>
 </body>

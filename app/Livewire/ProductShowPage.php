@@ -5,6 +5,8 @@ namespace App\Livewire;
 use App\Livewire\Traits\CartActions;
 use App\Models\Product;
 use Livewire\Component;
+use Illuminate\Support\Collection; // N'oubliez pas d'importer Collection
+use Livewire\Attributes\Computed; // Importation pour la mise en cache
 
 class ProductShowPage extends Component
 {
@@ -45,7 +47,7 @@ class ProductShowPage extends Component
     {
         $this->activeImageUrl = \Storage::url($imagePath);
         // On émet un événement pour qu'Alpine.js puisse gérer une transition fluide
-        $this->dispatch('image-selected');
+        //$this->dispatch('image-selected');
     }
 
     // --- Les autres méthodes ne changent pas ---
@@ -64,16 +66,32 @@ class ProductShowPage extends Component
         $this->addToCart($this->product->id, $this->quantity);
     }
 
+    #[Computed(persist: true)] // L'attribut Computed met en cache le résultat
+    public function galleryImages(): Collection
+    {
+        $images = collect();
+
+        if ($this->product->image) {
+            $images->push(['path' => $this->product->image, 'url' => \Storage::url($this->product->image)]);
+        }
+
+        foreach ($this->product->images as $img) {
+            $images->push(['path' => $img->image_path, 'url' => \Storage::url($img->image_path)]);
+        }
+
+        return $images;
+    }
+
     public function render()
     {
-        $similarProducts = Product::where('category_id', $this->product->category_id)
-            ->where('id', '!=', $this->product->id)
-            ->inRandomOrder()
-            ->take(4)
-            ->get();
+//        $similarProducts = Product::where('category_id', $this->product->category_id)
+//            ->where('id', '!=', $this->product->id)
+//            ->inRandomOrder()
+//            ->take(4)
+//            ->get();
 
         return view('livewire.product-show-page', [
-            'similarProducts' => $similarProducts
+            'similarProducts'  => collect()
         ])->layout('layouts.app');
     }
 }
