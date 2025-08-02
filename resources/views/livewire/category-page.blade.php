@@ -62,38 +62,25 @@
                     <!-- Indicateur de chargement -->
                     <div wire:loading.delay class="text-center w-full py-8"><span class="text-blue-600 font-semibold">Mise à jour des produits...</span></div>
 
-                    <!-- Grille -->
-                    <div wire:loading.remove>
-                        @if($products->isNotEmpty())
-                            <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-8">
-                                @foreach($products as $product)
-                                    <!-- Carte Produit (AUCUNE MARQUE ICI) -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+                        @foreach($products as $product)
+                            <!-- Carte Produit -->
+                            <div class="bg-white rounded-xl shadow-md overflow-hidden group transition-all duration-300 hover:shadow-2xl hover:-translate-y-2">
+                                <div class="relative">
                                     <a href="{{ route('product.show', $product) }}" class="block">
-                                        <div class="bg-white rounded-xl shadow-md overflow-hidden group transition-all duration-300 hover:shadow-2xl hover:-translate-y-2">
-                                            <div class="relative">
-                                                <img src="{{ Storage::url($product->image) ?? 'https://via.placeholder.com/400' }}" alt="{{ $product->name }}" class="w-full h-64 object-cover">
-                                                <button class="absolute bottom-4 right-4 w-12 h-12 bg-blue-600 text-white rounded-full flex items-center justify-center transform translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 hover:bg-blue-700">
-                                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
-                                                </button>
-                                            </div>
-                                            <div class="p-6">
-                                                <span class="text-sm text-gray-500">{{ $product->category->name }}</span>
-                                                <h3 class="font-semibold text-lg text-gray-800 mt-1 mb-2 truncate">{{ $product->name }}</h3>
-                                                <div class="flex items-baseline gap-2">
-                                                    <span class="text-2xl font-bold text-blue-600">{{ number_format($product->price, 0, ',', ' ') }}FCFA</span>
-                                                </div>
-                                            </div>
-                                        </div>
+                                        <img src="{{ Storage::url($product->image) ?? 'https://via.placeholder.com/400' }}" alt="{{ $product->name }}" class="w-full h-64 object-cover">
                                     </a>
-                                @endforeach
+                                    <livewire:add-to-cart-button :product="$product" :key="'featured-product-'.$product->id" />
+                                </div>
+                                <a href="{{ route('product.show', $product) }}" class="block p-6">
+                                    <span class="text-sm text-gray-500">{{ $product->category->name }}</span>
+                                    <h3 class="font-semibold text-lg text-gray-800 mt-1 mb-2 truncate">{{ $product->name }}</h3>
+                                    <div class="flex items-baseline gap-2">
+                                        <span class="text-2xl font-bold text-blue-600">{{ number_format($product->price, 0, ',', ' ') }}FCFA</span>
+                                    </div>
+                                </a>
                             </div>
-                            <div class="mt-16">{{ $products->links() }}</div>
-                        @else
-                            <div class="text-center py-16">
-                                <h3 class="text-xl font-semibold text-gray-800">Aucun produit ne correspond à votre recherche</h3>
-                                <p class="text-gray-500 mt-2">Essayez d'augmenter la tranche de prix.</p>
-                            </div>
-                        @endif
+                        @endforeach
                     </div>
                 </main>
             </div>

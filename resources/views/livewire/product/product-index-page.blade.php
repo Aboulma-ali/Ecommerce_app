@@ -50,16 +50,6 @@
                                     <span class="text-lg dark:text-gray-400">In Stock</span>
                                 </label>
                             </li>
-                            <li class="mb-4">
-                                <label for="on_sale" class="flex items-center dark:text-gray-300 cursor-pointer">
-                                    <input
-                                        type="checkbox"
-                                        id="on_sale"
-                                        wire:model.live="onSale"
-                                        class="w-4 h-4 mr-2 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500">
-                                    <span class="text-lg dark:text-gray-400">On Sale</span>
-                                </label>
-                            </li>
                         </ul>
                     </div>
 
@@ -130,13 +120,6 @@
                                         <button wire:click="$set('inStock', false)" class="ml-1 text-green-600 hover:text-green-800">×</button>
                                     </span>
                                 @endif
-
-                                @if($onSale)
-                                    <span class="inline-flex items-center px-2 py-1 bg-red-100 text-red-800 text-xs rounded-full">
-                                        En promotion
-                                        <button wire:click="$set('onSale', false)" class="ml-1 text-red-600 hover:text-red-800">×</button>
-                                    </span>
-                                @endif
                             </div>
                         </div>
                     @endif
@@ -170,7 +153,6 @@
                                                     -{{ $product->discount }}%
                                                 </div>
                                             @endif
-
                                             <!-- Badge de stock -->
                                             @if(isset($product->stock) && $product->stock <= 5 && $product->stock > 0)
                                                 <div class="absolute bottom-3 left-3 bg-orange-500 text-white px-2 py-1 rounded-full text-xs font-medium">
@@ -181,6 +163,7 @@
                                                     Rupture de stock
                                                 </div>
                                             @endif
+                                            <livewire:add-to-cart-button :product="$product" :key="'add-to-cart-'.$product->id" />
                                         </div>
 
                                         <!-- Contenu du produit -->
@@ -215,43 +198,6 @@
                                                         </span>
                                                     @endif
                                                 </div>
-                                            </div>
-                                        </div>
-
-                                        <!-- Actions -->
-                                        <div class="px-5 pb-5">
-                                            <div class="flex space-x-2">
-                                                <!-- Bouton Ajouter au panier -->
-                                                <button
-                                                    @if(isset($product->stock) && $product->stock <= 0)
-                                                        class="flex-1 flex items-center justify-center px-4 py-2 bg-gray-400 text-white font-medium rounded-lg cursor-not-allowed"
-                                                    disabled>
-                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                              d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728L5.636 5.636m12.728 12.728L18.364 5.636M5.636 18.364l12.728-12.728" />
-                                                    </svg>
-                                                    <span class="ml-2">Épuisé</span>
-                                                    @else
-                                                        class="flex-1 flex items-center justify-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors group/btn">
-                                                        <svg class="w-4 h-4 group-hover/btn:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                                  d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-2.5 5M7 13l2.5 5m6.5-5v5a2 2 0 11-4 0v-5m4 0V8a2 2 0 10-4 0v5" />
-                                                        </svg>
-                                                        <span class="ml-2">Ajouter</span>
-                                                    @endif
-                                                </button>
-
-                                                <!-- Bouton Voir détails -->
-                                                <a href="/product/{{ $product->id }}" wire:navigate
-                                                   class="flex items-center justify-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 font-medium rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors group/btn"
-                                                   title="Voir les détails">
-                                                    <svg class="w-4 h-4 group-hover/btn:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                              d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                              d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                                    </svg>
-                                                </a>
                                             </div>
                                         </div>
                                     </div>

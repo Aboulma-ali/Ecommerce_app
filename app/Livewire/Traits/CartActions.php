@@ -23,15 +23,17 @@ trait CartActions
         $cart = $this->getCartInstance();
 
         if ($cart->has($productId)) {
-            $cart[$productId]['quantity'] += $quantity;
+            $item = $cart->get($productId);
+            $item['quantity'] += $quantity;
+            $cart->put($productId, $item);
         } else {
-            $cart[$productId] = [
+            $cart->put($productId, [
                 'product_id' => $product->id,
                 'name' => $product->name,
                 'price' => $product->price,
-                'image' => $product->image, // Assurez-vous d'avoir un accesseur pour l'URL complète
+                'image' => $product->image,
                 'quantity' => $quantity,
-            ];
+            ]);
         }
 
         $this->updateCart($cart);

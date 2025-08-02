@@ -14,9 +14,9 @@ use Filament\Tables\Table;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
-
 use Filament\Support\Enums\FontWeight;
 use Filament\Tables\Enums\FiltersLayout;
+use Filament\Notifications\Notification;
 
 class ProduitResource extends Resource
 {
@@ -193,6 +193,13 @@ class ProduitResource extends Resource
                     })
                     ->formatStateUsing(fn (string $state): string => $state . ' unités'),
 
+                Tables\Columns\TextColumn::make('orderItems_count')
+                    ->label('Commandes')
+                    ->counts('orderItems')
+                    ->badge()
+                    ->color('info')
+                    ->sortable(),
+
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('Créé le')
                     ->dateTime('d/m/Y H:i')
@@ -287,7 +294,13 @@ class ProduitResource extends Resource
                         return null;
                     }),
 
+                Filter::make('has_orders')
+                    ->label('Produits commandés')
+                    ->query(fn (Builder $query): Builder => $query->whereHas('orderItems')),
 
+                Filter::make('no_orders')
+                    ->label('Jamais commandés')
+                    ->query(fn (Builder $query): Builder => $query->whereDoesntHave('orderItems')),
             ])
             ->filtersLayout(FiltersLayout::AboveContentCollapsible)
             ->actions([
@@ -300,7 +313,27 @@ class ProduitResource extends Resource
                         ->icon('heroicon-m-pencil-square'),
                     Tables\Actions\DeleteAction::make()
                         ->label('Supprimer')
-                        ->icon('heroicon-m-trash'),
+                        ->icon('heroicon-m-trash')
+                        ->requiresConfirmation()
+                        ->modalHeading('Supprimer le produit')
+                        ->modalDescription('Êtes-vous sûr de vouloir supprimer ce produit ?')
+                        ->modalSubmitActionLabel('Oui, supprimer')
+                        ->before(function (Tables\Actions\DeleteAction $action, Product $record) {
+                            // Vérifier si le produit a été commandé
+                            if ($record->orderItems()->exists()) {
+                                $orderCount = $record->orderItems()->count();
+
+                                Notification::make()
+                                    ->danger()
+                                    ->title('Suppression impossible')
+                                    ->body("Ce produit ne peut pas être supprimé car il apparaît dans {$orderCount} commande(s).")
+                                    ->persistent()
+                                    ->send();
+
+                                // Annuler l'action
+                                $action->cancel();
+                            }
+                        }),
                 ])
                     ->icon('heroicon-m-ellipsis-vertical')
                     ->size('sm')
@@ -310,7 +343,32 @@ class ProduitResource extends Resource
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make()
-                        ->label('Supprimer sélection'),
+                        ->label('Supprimer sélection')
+                        ->requiresConfirmation()
+                        ->modalHeading('Supprimer les produits sélectionnés')
+                        ->modalDescription('Êtes-vous sûr de vouloir supprimer ces produits ?')
+                        ->modalSubmitActionLabel('Oui, supprimer')
+                        ->before(function (Tables\Actions\DeleteBulkAction $action, $records) {
+                            $productsWithOrders = [];
+
+                            foreach ($records as $record) {
+                                if ($record->orderItems()->exists()) {
+                                    $productsWithOrders[] = $record->name;
+                                }
+                            }
+
+                            if (!empty($productsWithOrders)) {
+                                Notification::make()
+                                    ->danger()
+                                    ->title('Suppression impossible')
+                                    ->body('Les produits suivants ne peuvent pas être supprimés car ils ont été commandés : ' . implode(', ', $productsWithOrders))
+                                    ->persistent()
+                                    ->send();
+
+                                // Annuler l'action
+                                $action->cancel();
+                            }
+                        }),
                 ]),
             ])
             ->emptyStateActions([
@@ -343,8 +401,6 @@ class ProduitResource extends Resource
         ];
     }
 
-
-
     public static function getNavigationBadge(): ?string
     {
         return static::getModel()::count();
@@ -355,7 +411,7 @@ class ProduitResource extends Resource
         $count = static::getModel()::count();
 
         return match (true) {
-            $count === 0 => 'gray',      // Gris si aucune catégorie
+            $count === 0 => 'gray',      // Gris si aucun produit
             $count < 5 => 'danger',      // Rouge si moins de 5
             $count < 20 => 'warning',    // Orange si moins de 20
             default => 'success'         // Vert si 20 ou plus

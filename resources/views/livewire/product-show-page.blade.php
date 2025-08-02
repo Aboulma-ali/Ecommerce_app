@@ -2,50 +2,31 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-20">
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
 
-            <!-- ========== COLONNE DE GAUCHE : GALERIE D'IMAGES ========== -->
-            <div class="sticky top-8"
-                 x-data="{ show: true }"
-                 @image-selected.window="show = false; setTimeout(() => show = true, 50)">
-                <!-- Image principale avec transition -->
+            <!-- ========== COLONNE DE GAUCHE : GALERIE D'IMAGES (CORRIGÉE) ========== -->
+            <div>
+                <!-- Image principale -->
                 <div class="aspect-square w-full bg-gray-100 rounded-2xl shadow-lg overflow-hidden">
-                    <img :src="$wire.activeImageUrl"
-                         alt="{{ $product->name }}"
-                         class="w-full h-full object-cover transition-opacity duration-300"
-                         x-show="show"
-                         x-transition:enter="ease-out duration-300"
-                         x-transition:enter-start="opacity-0"
-                         x-transition:enter-end="opacity-100"
-                         x-transition:leave="ease-in duration-200"
-                         x-transition:leave-start="opacity-100"
-                         x-transition:leave-end="opacity-0">
+                    <img src="{{ $activeImageUrl }}" alt="{{ $product->name }}" class="w-full h-full object-cover">
                 </div>
 
                 <!-- Miniatures -->
-                @php
-                    // On combine l'image principale et les images de la galerie pour les miniatures
-                    $galleryImages = collect();
-                    if ($product->image) {
-                        $galleryImages->push(['path' => $product->image]);
-                    }
-                    foreach ($product->images as $img) {
-                        $galleryImages->push(['path' => $img->image_path]);
-                    }
-                @endphp
-
-                @if($galleryImages->count() > 1)
+                @if($this->galleryImages->count() > 1)
                     <div class="mt-4 grid grid-cols-5 gap-4">
-                        @foreach($galleryImages as $image)
-                            <div wire:click="selectImage('{{ $image['path'] }}')"
-                                 class="aspect-square bg-gray-100 rounded-lg overflow-hidden cursor-pointer border-2 transition hover:border-blue-500 hover:opacity-80
-                                 {{ $activeImageUrl == \Storage::url($image['path']) ? 'border-blue-500' : 'border-transparent' }}">
-                                <img src="{{ \Storage::url($image['path']) }}" class="w-full h-full object-cover">
-                            </div>
+                        @foreach($this->galleryImages as $image)
+                            <button type="button"
+                                    wire:key="gallery-image-{{ $loop->index }}"
+                                    wire:click="selectImage('{{ e($image['path']) }}')"
+                                    class="block aspect-square bg-gray-100 rounded-lg overflow-hidden border-2 transition focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
+                                           {{ $activeImageUrl == $image['url'] ? 'border-blue-500 shadow-md' : 'border-transparent hover:border-blue-300' }}">
+                                <img src="{{ $image['url'] }}" alt="Miniature" class="w-full h-full object-cover">
+                            </button>
                         @endforeach
                     </div>
                 @endif
             </div>
 
-            <!-- ========== COLONNE DE DROITE : INFORMATIONS ET ACTIONS (ne change presque pas) ========== -->
+
+            <!-- ========== COLONNE DE DROITE : INFORMATIONS ET ACTIONS (AUCUN CHANGEMENT) ========== -->
             <div>
                 @if($product->category)
                     <a href="#" class="text-sm font-medium text-blue-600 hover:text-blue-800">{{ $product->category->name }}</a>
@@ -71,6 +52,7 @@
             </div>
         </div>
 
+        <!-- Section des produits similaires (AUCUN CHANGEMENT) -->
         @if($similarProducts->isNotEmpty())
             <div class="mt-24">
                 <h2 class="text-2xl font-bold tracking-tight text-gray-900 mb-8">Vous pourriez aussi aimer</h2>
@@ -78,7 +60,6 @@
                     @foreach($similarProducts as $similarProduct)
                         <div class="bg-white rounded-xl shadow-md overflow-hidden group transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
                             <div class="relative">
-                                {{-- J'ai aussi corrigé le lien pour qu'il utilise l'ID du produit comme on l'a défini --}}
                                 <a href="{{ route('product.show', $similarProduct) }}" wire:navigate class="block h-64">
                                     <img src="{{ $similarProduct->image ? Storage::url($similarProduct->image) : '...' }}"
                                          alt="{{ $similarProduct->name }}" class="w-full h-full object-cover">
@@ -93,7 +74,7 @@
                     @endforeach
                 </div>
             </div>
-        @endif {{-- <--- LA CORRECTION EST ICI --}}
+        @endif
 
     </div>
 </div>
