@@ -12,6 +12,8 @@ use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
 use Filament\Widgets;
+use Filament\Navigation\UserMenuItem;      // 👈
+use Filament\Navigation\NavigationItem;    // 👈
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
@@ -40,6 +42,24 @@ class AdminPanelProvider extends PanelProvider
             ->widgets([
                // Widgets\AccountWidget::class,
               //  Widgets\FilamentInfoWidget::class,
+            ])
+            // 1) Un lien "Retour à la boutique" dans le menu utilisateur
+            ->userMenuItems([
+                'storefront' => UserMenuItem::make()
+                    ->label('Retour à la boutique')
+                    ->icon('heroicon-o-home')
+                    ->url(fn () => url('/'))      // route front-office
+                    ->openUrlInNewTab(false),   // true si tu préfères un nouvel onglet
+            ])
+
+            // 2) (Facultatif) Un item dans la sidebar Filament
+            ->navigationItems([
+                NavigationItem::make('Retour boutique')
+                    ->url(fn () => url('/'))
+                    ->icon('heroicon-o-arrow-left')
+                    ->group('Boutique')        // ou supprime pour aucun groupage
+                    ->sort(-1)                 // -1 se place tout en haut
+                    ->openUrlInNewTab(false),
             ])
             ->middleware([
                 EncryptCookies::class,
